@@ -1,0 +1,16 @@
+flask
+flask-limiter
+
+requests
+pillow
+waitress
+bleach
+python-dotenv 
+werkzeug
+
+openai
+
+python-dotenv
+google-generativeai
+
+
