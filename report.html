@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش تحلیل خسارت بدنه خودرو</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-2xl text-center transition duration-500 hover:scale-105">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-4">گزارش تحلیل خسارت بدنه خودرو</h1>
+        <p class="text-gray-600 mb-6">نتایج بررسی و تحلیل تصویر بارگذاری‌شده در زیر آمده است.</p>
+
+        <div id="report-details" class="text-right bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-300 hidden">
+            <h2 class="text-xl font-bold text-indigo-600 mb-4">جزئیات تحلیل</h2>
+            <p class="text-gray-700 leading-relaxed" id="report-content"></p>
+        </div>
+
+        <h2 class="text-xl font-bold text-indigo-600 mt-6 mb-4">خلاصه تحلیل</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right border-collapse border border-gray-300">
+                <thead class="bg-blue-500 text-white">
+                    <tr>
+                        <th class="p-3 border border-gray-300">بخش آسیب‌دیده</th>
+                        <th class="p-3 border border-gray-300">شدت آسیب</th>
+                        <th class="p-3 border border-gray-300">نیاز به تعویض / تعمیر</th>
+                        <th class="p-3 border border-gray-300">هزینه تخمینی</th>
+                    </tr>
+                </thead>
+                <tbody id="damage-table-body" class="bg-white">
+                    </tbody>
+            </table>
+        </div>
+
+        <div id="report-summary" class="mt-6 text-right">
+            <p><span class="font-bold">مجموع هزینه تخمینی:</span> <span id="total-cost">---</span></p>
+            <p><span class="font-bold">وضعیت ایمنی:</span> <span id="safety-status">---</span></p>
+            <p><span class="font-bold">موتور تحلیل:</span> <span id="analysis-engine">---</span></p>
+            <p><span class="font-bold">زمان تحلیل:</span> <span id="analysis-time">---</span></p>
+        </div>
+
+        <a href="/" class="inline-block mt-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 py-3 rounded-lg hover:shadow-xl hover:from-blue-600 hover:to-indigo-700 transition transform hover:-translate-y-1">
+            بازگشت به صفحه اصلی
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const reportData = JSON.parse(localStorage.getItem('reportData'));
+
+            if (reportData) {
+                document.getElementById('report-details').classList.remove('hidden');
+                document.getElementById('report-content').textContent = reportData.content;
+
+                const tableBody = document.getElementById('damage-table-body');
+                reportData.damages.forEach(damage => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = damage.part;
+                    row.insertCell().textContent = damage.severity;
+                    row.insertCell().textContent = damage.action;
+                    row.insertCell().textContent = damage.cost;
+                });
+
+                document.getElementById('total-cost').textContent = reportData.total_cost || "---"; // Handle missing data
+                document.getElementById('safety-status').textContent = reportData.safety_status || "---";
+                document.getElementById('analysis-engine').textContent = reportData.engine || "---";
+                document.getElementById('analysis-time').textContent = reportData.timestamp || "---";
+
+            } else {
+                alert("اطلاعات گزارش یافت نشد."); // Persian alert
+                window.location.href = "/";
+            }
+        });
+    </script>
+</body>
+</html>

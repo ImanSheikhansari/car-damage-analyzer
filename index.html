@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحلیل خسارت بدنه خودرو</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .file-input {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        #loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        .lds-dual-ring { /* Loading spinner styles */
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+        }
+        .lds-dual-ring:after {
+            content: " ";
+            display: block;
+            width: 64px;
+            height: 64px;
+            margin: 8px;
+            border-radius: 50%;
+            border: 6px solid #007bff; /* Customize color */
+            border-color: #007bff transparent #007bff transparent;
+            animation: lds-dual-ring 1.2s linear infinite;
+        }
+        @keyframes lds-dual-ring {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md text-center transition duration-500 hover:scale-105">
+        <h1 class="text-2xl font-extrabold text-gray-800 mb-4">تحلیل خسارت بدنه خودرو</h1>
+        <p class="text-gray-600 mb-6">لطفاً تصویر خسارت بدنه خودروی خود را بارگذاری کنید.</p>
+
+        <form id="analysisForm" action="/analyze" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <div class="relative">
+                <label for="image" class="block text-gray-700 font-medium mb-2">انتخاب تصویر:</label>
+                <div class="relative border-2 border-dashed border-blue-500 rounded-lg p-4 text-center cursor-pointer hover:bg-blue-50 transition">
+                    <span id="file-name" class="text-blue-600 font-medium">تصویر را انتخاب کنید</span>
+                    <span class="block text-sm text-gray-500">فرمت‌های مجاز: JPG, PNG, GIF</span>
+                    <input type="file" name="image" id="image" accept="image/*" required class="file-input">
+                </div>
+            </div>
+
+            <div>
+                <label for="api" class="block text-gray-700 font-medium mb-2">انتخاب موتور تحلیل:</label>
+                <select name="api" id="api" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="openai">OpenAI</option>
+                    <option value="gemini">Google Gemini</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="language" class="block text-gray-700 font-medium mb-2">انتخاب زبان گزارش:</label>
+                <select name="language" id="language" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="persian">فارسی</option>
+                    <option value="english">English</option>
+                </select>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 py-3 rounded-lg hover:shadow-xl hover:from-blue-600 hover:to-indigo-700 transition transform hover:-translate-y-1">
+                آپلود و تحلیل
+            </button>
+        </form>
+        <div id="loading" class="lds-dual-ring"></div>
+        <div id="error-message" class="text-red-500 hidden"></div>
+        <div id="success-message" class="text-green-500 hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('image').addEventListener('change', function (e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : "تصویر را انتخاب کنید";
+            document.getElementById('file-name').textContent = fileName;
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        });
+
+        document.getElementById('analysisForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: form.method,
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {throw new Error(err.error)});
+                }
+                return response.json();
+            })
+            .then(reportData => {
+                localStorage.setItem('reportData', JSON.stringify(reportData));
+                window.location.href = "/report";
+                document.getElementById('success-message').classList.remove('hidden');
+                document.getElementById('success-message').textContent = "فایل با موفقیت آپلود و پردازش شد!"; // Persian message
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('error-message').textContent = error.message;
+            })
+            .finally(() => {
+                document.getElementById('loading').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
